@@ -12,6 +12,8 @@ function App() {
   const [cards, setCards] = useState([])
   const [flippedCards, setFlippedCards] = useState([])
   const [matchedCards, setMatchedCards] = useState([])
+  const [score, setScore] = useState(0)
+  const [moves, setMoves] = useState(0)
 
   const initializeGame = () => {
     const finalCards = cardValues.map((value, index) => ({
@@ -44,19 +46,28 @@ function App() {
     //check two flipped card are matched ?
     if (flippedCards.length === 1) {
       const firstCard = cards[flippedCards[0]]
+
       if (firstCard.value === card.value) {
-        setMatchedCards(prev => [...prev, flippedCards.id, card.id])
+        setTimeout(() => {
+          setMatchedCards(prev => [...prev, firstCard.id, card.id])
+          setScore(prev => prev + 1)
+          const newMatchedCards = cards.map((c) => {
+            if (c.id === card.id || c.id === firstCard.id) {
+              return { ...c, isMatched: true }
+            } else {
+              return c
+            }
+          })
 
-        const newMatchedCards = cards.map((c) => {
-          if (c.id === card.id || c.id === firstCard.id) {
-            return { ...c, isMatched: true }
-          } else {
-            return c
-          }
-        })
-
-        setCards(newMatchedCards)
-        setFlippedCards([])
+          setCards((prev) => prev.map((c) => {
+            if (c.id === card.id || c.id === firstCard.id) {
+              return { ...c, isMatched: true }
+            } else {
+              return c
+            }
+          }))
+          setFlippedCards([])
+        }, 500);
 
       } else {
         //flip back card 1, card 2
@@ -72,6 +83,9 @@ function App() {
           setFlippedCards([])
         }, 1000);
       }
+
+      setMoves(prev => prev + 1)
+
     }
 
   }
@@ -83,7 +97,7 @@ function App() {
 
   return (
     <div className="app" onLoad={initializeGame}>
-      <Header score={2} moves={3}></Header>
+      <Header score={score} moves={moves} />
       <div className="cards-grid">
         {cards.map(card => (
           <Card card={card} onClick={handleClick} />
